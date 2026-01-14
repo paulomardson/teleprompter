@@ -9,85 +9,121 @@
 <body class="bg-black text-white overflow-hidden">
     <div id="app" class="h-screen flex flex-col">
         <!-- Controles -->
-        <div id="controls" class="bg-zinc-950 border-b border-zinc-800 p-3">
-            <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
-                <!-- Botões principais -->
-                <div class="flex gap-2">
-                    <button onclick="togglePlay()" id="playBtn" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded text-sm transition">
-                        ▶ Play
-                    </button>
-                    <button onclick="resetScroll()" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded text-sm transition">
-                        Reset
-                    </button>
-                    <button onclick="toggleEdit()" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded text-sm transition">
-                        Editar
-                    </button>
-                    <button onclick="toggleMirror()" id="mirrorBtn" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded text-sm transition">
-                        Espelhar
-                    </button>
-                    <button onclick="toggleFullscreen()" id="fullscreenBtn" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded text-sm transition">
-                        Fullscreen
-                    </button>
+        <div id="controls" class="bg-zinc-950 border-b border-zinc-800 p-3 sm:p-4">
+            <div class="max-w-7xl mx-auto space-y-3">
+                <!-- Linha 1: Botões principais e idioma -->
+                <div class="flex items-center justify-between gap-2 sm:gap-4 flex-wrap">
+                    <div class="flex gap-1 sm:gap-2 flex-wrap">
+                        <button onclick="togglePlay()" id="playBtn" class="group relative bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-zinc-600 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
+                            <span class="flex items-center gap-1 sm:gap-2">
+                                <span id="playIcon">▶</span>
+                                <span id="playText" data-key="play" class="hidden sm:inline">Play</span>
+                            </span>
+                        </button>
+                        <button onclick="resetScroll()" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-zinc-600 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
+                            <span class="flex items-center gap-1 sm:gap-2">
+                                <span>↻</span>
+                                <span data-key="reset" class="hidden sm:inline">Reset</span>
+                            </span>
+                        </button>
+                        <button onclick="toggleEdit()" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-zinc-600 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
+                            <span class="flex items-center gap-1 sm:gap-2">
+                                <span>✎</span>
+                                <span data-key="edit" class="hidden sm:inline">Editar</span>
+                            </span>
+                        </button>
+                        <button onclick="toggleMirror()" id="mirrorBtn" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-zinc-600 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
+                            <span class="flex items-center gap-1 sm:gap-2">
+                                <span>⇄</span>
+                                <span data-key="mirror" class="hidden sm:inline">Espelhar</span>
+                            </span>
+                        </button>
+                        <button onclick="toggleFullscreen()" id="fullscreenBtn" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-zinc-600 px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
+                            <span class="flex items-center gap-1 sm:gap-2">
+                                <span>⛶</span>
+                                <span data-key="fullscreen" class="hidden sm:inline">Fullscreen</span>
+                            </span>
+                        </button>
+                    </div>
+
+                    <!-- Seletor de Idioma -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-xs sm:text-sm text-zinc-400 hidden sm:inline" data-key="language">Idioma:</label>
+                        <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-zinc-900 border border-zinc-700 hover:border-zinc-600 text-white px-2 sm:px-4 py-2 rounded-lg text-xs sm:text-sm focus:outline-none focus:border-zinc-500 transition-all cursor-pointer">
+                            <option value="pt">🇧🇷 PT</option>
+                            <option value="en">🇺🇸 EN</option>
+                            <option value="de">🇩🇪 DE</option>
+                            <option value="es">🇪🇸 ES</option>
+                            <option value="zh">🇨🇳 中文</option>
+                        </select>
+                    </div>
                 </div>
 
-                <!-- Controles -->
-                <div class="flex gap-6 items-center">
-                    <div class="flex items-center gap-2">
-                        <label class="text-sm text-zinc-400">Velocidade:</label>
+                <!-- Linha 2: Controles deslizantes -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-sm text-zinc-300" data-key="speed">Velocidade</label>
+                            <span id="speedValue" class="text-sm text-white font-medium bg-zinc-800 px-2 py-1 rounded">1.5</span>
+                        </div>
                         <input type="range" id="speed" min="0.5" max="8" step="0.5" value="1.5" 
                                oninput="updateSpeed(this.value)" 
-                               class="w-32">
-                        <span id="speedValue" class="text-sm text-zinc-300 w-8">1.5</span>
+                               class="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-400">
                     </div>
-                    <div class="flex items-center gap-2">
-                        <label class="text-sm text-zinc-400">Tamanho:</label>
-                        <input type="range" id="fontSize" min="32" max="96" step="4" value="56" 
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-3">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-sm text-zinc-300" data-key="fontSize">Tamanho do Texto</label>
+                            <span id="sizeValue" class="text-sm text-white font-medium bg-zinc-800 px-2 py-1 rounded">56px</span>
+                        </div>
+                        <input type="range" id="fontSizeInput" min="32" max="96" step="4" value="56" 
                                oninput="updateFontSize(this.value)" 
-                               class="w-32">
-                        <span id="sizeValue" class="text-sm text-zinc-300 w-12">56px</span>
+                               class="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-400">
                     </div>
                 </div>
 
-                <button onclick="toggleControls()" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded text-sm transition">
-                    Ocultar
-                </button>
+                <!-- Botão Ocultar -->
+                <div class="flex justify-end">
+                    <button onclick="toggleControls()" class="bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-zinc-600 px-4 py-2 rounded-lg text-xs text-zinc-400 hover:text-zinc-200 transition-all duration-200">
+                        <span data-key="hide">Ocultar Controles</span>
+                    </button>
+                </div>
             </div>
         </div>
 
         <!-- Botão para mostrar controles (aparece quando ocultos) -->
-        <button id="showControlsBtn" onclick="toggleControls()" class="hidden fixed top-4 right-4 bg-zinc-800 bg-opacity-50 hover:bg-opacity-80 px-3 py-2 rounded text-sm transition z-40">
-            Mostrar Controles
+        <button id="showControlsBtn" onclick="toggleControls()" class="hidden fixed top-4 right-4 bg-zinc-900 bg-opacity-90 hover:bg-opacity-100 border border-zinc-700 px-4 py-2 rounded-lg text-sm transition-all z-40 shadow-2xl backdrop-blur-sm">
+            <span data-key="show">Mostrar Controles</span>
         </button>
 
         <!-- Área do Teleprompter -->
         <div id="prompter" class="flex-1 overflow-y-auto overflow-x-hidden">
             <div id="textContainer" class="min-h-full flex items-start justify-center pt-[50vh] pb-[50vh]">
                 <div id="scrollText" class="text-center leading-relaxed max-w-5xl px-8 w-full">
-                    <p class="mb-12">Bem-vindo ao Teleprompter</p>
-                    <p class="mb-12">Clique em "Editar" para adicionar seu texto</p>
-                    <p class="mb-12">Use ESPAÇO para pausar/continuar</p>
-                    <p class="mb-12">Setas ↑ ↓ ajustam a velocidade</p>
-                    <p class="mb-12">Boa apresentação!</p>
+                    <p class="mb-12" data-key="welcome">Bem-vindo ao Teleprompter</p>
+                    <p class="mb-12" data-key="clickEdit">Clique em "Editar" para adicionar seu texto</p>
+                    <p class="mb-12" data-key="spaceKey">Use ESPAÇO para pausar/continuar</p>
+                    <p class="mb-12" data-key="arrowKeys">Setas ↑ ↓ ajustam a velocidade</p>
+                    <p class="mb-12" data-key="enjoy">Boa apresentação!</p>
                 </div>
             </div>
         </div>
 
         <!-- Modal de Edição -->
         <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
-            <div class="bg-zinc-900 border border-zinc-800 rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col">
-                <div class="p-4 border-b border-zinc-800">
-                    <h2 class="text-xl font-light">Editar Texto</h2>
+            <div class="bg-zinc-900 border border-zinc-800 rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl">
+                <div class="p-5 border-b border-zinc-800">
+                    <h2 class="text-xl font-light" data-key="editText">Editar Texto</h2>
                 </div>
-                <div class="p-4 flex-1 overflow-auto">
-                    <textarea id="textEditor" class="w-full h-96 bg-black text-white p-4 rounded border border-zinc-800 focus:border-zinc-600 focus:outline-none text-base font-mono resize-none" 
-                              placeholder="Digite seu texto aqui...&#10;&#10;Separe parágrafos com linhas em branco"></textarea>
+                <div class="p-5 flex-1 overflow-auto">
+                    <textarea id="textEditor" class="w-full h-96 bg-black text-white p-4 rounded-lg border border-zinc-800 focus:border-zinc-600 focus:outline-none text-base font-mono resize-none" 
+                              data-key-placeholder="editPlaceholder"></textarea>
                 </div>
-                <div class="p-4 border-t border-zinc-800 flex gap-2 justify-end">
-                    <button onclick="cancelEdit()" class="bg-zinc-800 hover:bg-zinc-700 px-6 py-2 rounded text-sm transition">
-                        Cancelar
+                <div class="p-5 border-t border-zinc-800 flex gap-3 justify-end">
+                    <button onclick="cancelEdit()" class="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 hover:border-zinc-600 px-6 py-2.5 rounded-lg text-sm font-medium transition-all">
+                        <span data-key="cancel">Cancelar</span>
                     </button>
-                    <button onclick="saveText()" class="bg-white text-black hover:bg-zinc-200 px-6 py-2 rounded text-sm transition">
-                        Salvar
+                    <button onclick="saveText()" class="bg-white text-black hover:bg-zinc-200 px-6 py-2.5 rounded-lg text-sm font-medium transition-all shadow-lg">
+                        <span data-key="save">Salvar</span>
                     </button>
                 </div>
             </div>
@@ -95,11 +131,132 @@
     </div>
 
     <script>
+        // Traduções
+        const translations = {
+            pt: {
+                play: 'Play',
+                pause: 'Pause',
+                reset: 'Reset',
+                edit: 'Editar',
+                mirror: 'Espelhar',
+                fullscreen: 'Fullscreen',
+                exitFullscreen: 'Sair Fullscreen',
+                language: 'Idioma:',
+                speed: 'Velocidade',
+                fontSize: 'Tamanho do Texto',
+                hide: 'Ocultar Controles',
+                show: 'Mostrar Controles',
+                welcome: 'Bem-vindo ao Teleprompter',
+                clickEdit: 'Clique em "Editar" para adicionar seu texto',
+                spaceKey: 'Use ESPAÇO para pausar/continuar',
+                arrowKeys: 'Setas ↑ ↓ ajustam a velocidade',
+                enjoy: 'Boa apresentação!',
+                editText: 'Editar Texto',
+                editPlaceholder: 'Digite seu texto aqui...\n\nSepare parágrafos com linhas em branco',
+                cancel: 'Cancelar',
+                save: 'Salvar'
+            },
+            en: {
+                play: 'Play',
+                pause: 'Pause',
+                reset: 'Reset',
+                edit: 'Edit',
+                mirror: 'Mirror',
+                fullscreen: 'Fullscreen',
+                exitFullscreen: 'Exit Fullscreen',
+                language: 'Language:',
+                speed: 'Speed',
+                fontSize: 'Text Size',
+                hide: 'Hide Controls',
+                show: 'Show Controls',
+                welcome: 'Welcome to Teleprompter',
+                clickEdit: 'Click "Edit" to add your text',
+                spaceKey: 'Press SPACE to pause/continue',
+                arrowKeys: 'Arrows ↑ ↓ adjust speed',
+                enjoy: 'Enjoy your presentation!',
+                editText: 'Edit Text',
+                editPlaceholder: 'Type your text here...\n\nSeparate paragraphs with blank lines',
+                cancel: 'Cancel',
+                save: 'Save'
+            },
+            de: {
+                play: 'Abspielen',
+                pause: 'Pause',
+                reset: 'Zurücksetzen',
+                edit: 'Bearbeiten',
+                mirror: 'Spiegeln',
+                fullscreen: 'Vollbild',
+                exitFullscreen: 'Vollbild beenden',
+                language: 'Sprache:',
+                speed: 'Geschwindigkeit',
+                fontSize: 'Textgröße',
+                hide: 'Steuerung ausblenden',
+                show: 'Steuerung anzeigen',
+                welcome: 'Willkommen beim Teleprompter',
+                clickEdit: 'Klicken Sie auf "Bearbeiten", um Ihren Text hinzuzufügen',
+                spaceKey: 'Drücken Sie LEERTASTE zum Pausieren/Fortsetzen',
+                arrowKeys: 'Pfeile ↑ ↓ passen die Geschwindigkeit an',
+                enjoy: 'Viel Erfolg bei Ihrer Präsentation!',
+                editText: 'Text bearbeiten',
+                editPlaceholder: 'Geben Sie hier Ihren Text ein...\n\nTrennen Sie Absätze mit Leerzeilen',
+                cancel: 'Abbrechen',
+                save: 'Speichern'
+            },
+            es: {
+                play: 'Reproducir',
+                pause: 'Pausa',
+                reset: 'Reiniciar',
+                edit: 'Editar',
+                mirror: 'Reflejar',
+                fullscreen: 'Pantalla completa',
+                exitFullscreen: 'Salir pantalla completa',
+                language: 'Idioma:',
+                speed: 'Velocidad',
+                fontSize: 'Tamaño del texto',
+                hide: 'Ocultar controles',
+                show: 'Mostrar controles',
+                welcome: 'Bienvenido al Teleprompter',
+                clickEdit: 'Haga clic en "Editar" para agregar su texto',
+                spaceKey: 'Presione ESPACIO para pausar/continuar',
+                arrowKeys: 'Flechas ↑ ↓ ajustan la velocidad',
+                enjoy: '¡Buena presentación!',
+                editText: 'Editar texto',
+                editPlaceholder: 'Escriba su texto aquí...\n\nSepare párrafos con líneas en blanco',
+                cancel: 'Cancelar',
+                save: 'Guardar'
+            },
+            zh: {
+                play: '播放',
+                pause: '暂停',
+                reset: '重置',
+                edit: '编辑',
+                mirror: '镜像',
+                fullscreen: '全屏',
+                exitFullscreen: '退出全屏',
+                language: '语言：',
+                speed: '速度',
+                fontSize: '文字大小',
+                hide: '隐藏控件',
+                show: '显示控件',
+                welcome: '欢迎使用提词器',
+                clickEdit: '点击"编辑"添加您的文本',
+                spaceKey: '按空格键暂停/继续',
+                arrowKeys: '箭头 ↑ ↓ 调整速度',
+                enjoy: '祝您演示顺利！',
+                editText: '编辑文本',
+                editPlaceholder: '在此输入您的文本...\n\n用空行分隔段落',
+                cancel: '取消',
+                save: '保存'
+            }
+        };
+
+        let currentLang = 'pt';
         let isPlaying = false;
         let scrollSpeed = 1.5;
         let fontSize = 56;
         let isMirrored = false;
         let lastTimestamp = 0;
+        let wakeLock = null;
 
         const scrollText = document.getElementById('scrollText');
         const prompter = document.getElementById('prompter');
@@ -111,14 +268,65 @@
 
         scrollText.style.fontSize = fontSize + 'px';
 
+        function changeLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-key]').forEach(el => {
+                const key = el.getAttribute('data-key');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+            
+            const placeholder = document.querySelector('[data-key-placeholder]');
+            if (placeholder) {
+                placeholder.placeholder = translations[lang].editPlaceholder;
+            }
+            
+            if (!isPlaying) {
+                document.getElementById('playText').textContent = translations[lang].play;
+            } else {
+                document.getElementById('playText').textContent = translations[lang].pause;
+            }
+        }
+
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    wakeLock.addEventListener('release', () => {
+                        console.log('Wake Lock liberado');
+                    });
+                }
+            } catch (err) {
+                console.log('Erro ao ativar Wake Lock:', err);
+            }
+        }
+
+        async function releaseWakeLock() {
+            if (wakeLock !== null) {
+                await wakeLock.release();
+                wakeLock = null;
+            }
+        }
+
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') {
+                await requestWakeLock();
+            }
+        });
+
         function togglePlay() {
             isPlaying = !isPlaying;
             if (isPlaying) {
-                playBtn.textContent = '⏸ Pause';
+                document.getElementById('playIcon').textContent = '⏸';
+                document.getElementById('playText').textContent = translations[currentLang].pause;
                 lastTimestamp = performance.now();
                 requestAnimationFrame(scroll);
+                requestWakeLock();
             } else {
-                playBtn.textContent = '▶ Play';
+                document.getElementById('playIcon').textContent = '▶';
+                document.getElementById('playText').textContent = translations[currentLang].play;
+                releaseWakeLock();
             }
         }
 
@@ -137,7 +345,9 @@
         function resetScroll() {
             isPlaying = false;
             prompter.scrollTop = 0;
-            playBtn.textContent = '▶ Play';
+            document.getElementById('playIcon').textContent = '▶';
+            document.getElementById('playText').textContent = translations[currentLang].play;
+            releaseWakeLock();
         }
 
         function updateSpeed(value) {
@@ -159,7 +369,7 @@
 
         function toggleEdit() {
             const currentText = scrollText.innerHTML;
-            const plainText = currentText.replace(/<p class="mb-12">/g, '').replace(/<\/p>/g, '\n\n').trim();
+            const plainText = currentText.replace(/<p class="mb-12"[^>]*>/g, '').replace(/<\/p>/g, '\n\n').trim();
             textEditor.value = plainText;
             editModal.classList.remove('hidden');
         }
@@ -196,13 +406,12 @@
             }
         }
 
-        // Atualizar botão quando sair do fullscreen
         document.addEventListener('fullscreenchange', () => {
-            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            const fullscreenBtn = document.querySelector('#fullscreenBtn span[data-key="fullscreen"]');
             if (document.fullscreenElement) {
-                fullscreenBtn.textContent = 'Sair Fullscreen';
+                fullscreenBtn.textContent = translations[currentLang].exitFullscreen;
             } else {
-                fullscreenBtn.textContent = 'Fullscreen';
+                fullscreenBtn.textContent = translations[currentLang].fullscreen;
             }
         });
 
