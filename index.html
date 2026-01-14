@@ -25,6 +25,9 @@
                     <button onclick="toggleMirror()" id="mirrorBtn" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded text-sm transition">
                         Espelhar
                     </button>
+                    <button onclick="toggleFullscreen()" id="fullscreenBtn" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded text-sm transition">
+                        Fullscreen
+                    </button>
                 </div>
 
                 <!-- Controles -->
@@ -183,6 +186,26 @@
             }
         }
 
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Erro ao entrar em fullscreen:', err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Atualizar botão quando sair do fullscreen
+        document.addEventListener('fullscreenchange', () => {
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            if (document.fullscreenElement) {
+                fullscreenBtn.textContent = 'Sair Fullscreen';
+            } else {
+                fullscreenBtn.textContent = 'Fullscreen';
+            }
+        });
+
         document.addEventListener('keydown', (e) => {
             if (editModal.classList.contains('hidden')) {
                 if (e.code === 'Space') {
@@ -201,6 +224,9 @@
                 } else if (e.code === 'KeyH') {
                     e.preventDefault();
                     toggleControls();
+                } else if (e.code === 'KeyF') {
+                    e.preventDefault();
+                    toggleFullscreen();
                 }
             }
         });
