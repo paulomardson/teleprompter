@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teleprompter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-black text-white overflow-hidden">
+    <div id="app" class="h-screen flex flex-col">
+        <!-- Controles -->
+        <div id="controls" class="bg-zinc-950 border-b border-zinc-800 p-3">
+            <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+                <!-- Botões principais -->
+                <div class="flex gap-2">
+                    <button onclick="togglePlay()" id="playBtn" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded text-sm transition">
+                        ▶ Play
+                    </button>
+                    <button onclick="resetScroll()" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded text-sm transition">
+                        Reset
+                    </button>
+                    <button onclick="toggleEdit()" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded text-sm transition">
+                        Editar
+                    </button>
+                    <button onclick="toggleMirror()" id="mirrorBtn" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded text-sm transition">
+                        Espelhar
+                    </button>
+                </div>
+
+                <!-- Controles -->
+                <div class="flex gap-6 items-center">
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-zinc-400">Velocidade:</label>
+                        <input type="range" id="speed" min="0.5" max="8" step="0.5" value="1.5" 
+                               oninput="updateSpeed(this.value)" 
+                               class="w-32">
+                        <span id="speedValue" class="text-sm text-zinc-300 w-8">1.5</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-zinc-400">Tamanho:</label>
+                        <input type="range" id="fontSize" min="32" max="96" step="4" value="56" 
+                               oninput="updateFontSize(this.value)" 
+                               class="w-32">
+                        <span id="sizeValue" class="text-sm text-zinc-300 w-12">56px</span>
+                    </div>
+                </div>
+
+                <button onclick="toggleControls()" class="bg-zinc-800 hover:bg-zinc-700 px-4 py-2 rounded text-sm transition">
+                    Ocultar
+                </button>
+            </div>
+        </div>
+
+        <!-- Botão para mostrar controles (aparece quando ocultos) -->
+        <button id="showControlsBtn" onclick="toggleControls()" class="hidden fixed top-4 right-4 bg-zinc-800 bg-opacity-50 hover:bg-opacity-80 px-3 py-2 rounded text-sm transition z-40">
+            Mostrar Controles
+        </button>
+
+        <!-- Área do Teleprompter -->
+        <div id="prompter" class="flex-1 overflow-y-auto overflow-x-hidden">
+            <div id="textContainer" class="min-h-full flex items-start justify-center pt-[50vh] pb-[50vh]">
+                <div id="scrollText" class="text-center leading-relaxed max-w-5xl px-8 w-full">
+                    <p class="mb-12">Bem-vindo ao Teleprompter</p>
+                    <p class="mb-12">Clique em "Editar" para adicionar seu texto</p>
+                    <p class="mb-12">Use ESPAÇO para pausar/continuar</p>
+                    <p class="mb-12">Setas ↑ ↓ ajustam a velocidade</p>
+                    <p class="mb-12">Boa apresentação!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Edição -->
+        <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+            <div class="bg-zinc-900 border border-zinc-800 rounded-lg max-w-4xl w-full max-h-[90vh] flex flex-col">
+                <div class="p-4 border-b border-zinc-800">
+                    <h2 class="text-xl font-light">Editar Texto</h2>
+                </div>
+                <div class="p-4 flex-1 overflow-auto">
+                    <textarea id="textEditor" class="w-full h-96 bg-black text-white p-4 rounded border border-zinc-800 focus:border-zinc-600 focus:outline-none text-base font-mono resize-none" 
+                              placeholder="Digite seu texto aqui...&#10;&#10;Separe parágrafos com linhas em branco"></textarea>
+                </div>
+                <div class="p-4 border-t border-zinc-800 flex gap-2 justify-end">
+                    <button onclick="cancelEdit()" class="bg-zinc-800 hover:bg-zinc-700 px-6 py-2 rounded text-sm transition">
+                        Cancelar
+                    </button>
+                    <button onclick="saveText()" class="bg-white text-black hover:bg-zinc-200 px-6 py-2 rounded text-sm transition">
+                        Salvar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isPlaying = false;
+        let scrollSpeed = 1.5;
+        let fontSize = 56;
+        let isMirrored = false;
+        let lastTimestamp = 0;
+
+        const scrollText = document.getElementById('scrollText');
+        const prompter = document.getElementById('prompter');
+        const playBtn = document.getElementById('playBtn');
+        const editModal = document.getElementById('editModal');
+        const textEditor = document.getElementById('textEditor');
+        const controls = document.getElementById('controls');
+        const showControlsBtn = document.getElementById('showControlsBtn');
+
+        scrollText.style.fontSize = fontSize + 'px';
+
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            if (isPlaying) {
+                playBtn.textContent = '⏸ Pause';
+                lastTimestamp = performance.now();
+                requestAnimationFrame(scroll);
+            } else {
+                playBtn.textContent = '▶ Play';
+            }
+        }
+
+        function scroll(timestamp) {
+            if (!isPlaying) return;
+            
+            if (lastTimestamp) {
+                const delta = timestamp - lastTimestamp;
+                prompter.scrollTop += (scrollSpeed * delta) / 16;
+            }
+            lastTimestamp = timestamp;
+            
+            requestAnimationFrame(scroll);
+        }
+
+        function resetScroll() {
+            isPlaying = false;
+            prompter.scrollTop = 0;
+            playBtn.textContent = '▶ Play';
+        }
+
+        function updateSpeed(value) {
+            scrollSpeed = parseFloat(value);
+            document.getElementById('speedValue').textContent = value;
+        }
+
+        function updateFontSize(value) {
+            fontSize = parseInt(value);
+            scrollText.style.fontSize = fontSize + 'px';
+            document.getElementById('sizeValue').textContent = value + 'px';
+        }
+
+        function toggleMirror() {
+            isMirrored = !isMirrored;
+            scrollText.style.transform = isMirrored ? 'scaleX(-1)' : 'scaleX(1)';
+            document.getElementById('mirrorBtn').style.backgroundColor = isMirrored ? '#3f3f46' : '';
+        }
+
+        function toggleEdit() {
+            const currentText = scrollText.innerHTML;
+            const plainText = currentText.replace(/<p class="mb-12">/g, '').replace(/<\/p>/g, '\n\n').trim();
+            textEditor.value = plainText;
+            editModal.classList.remove('hidden');
+        }
+
+        function cancelEdit() {
+            editModal.classList.add('hidden');
+        }
+
+        function saveText() {
+            const text = textEditor.value;
+            const paragraphs = text.split('\n').filter(p => p.trim() !== '');
+            scrollText.innerHTML = paragraphs.map(p => `<p class="mb-12">${p.trim()}</p>`).join('');
+            editModal.classList.add('hidden');
+            resetScroll();
+        }
+
+        function toggleControls() {
+            if (controls.style.display === 'none') {
+                controls.style.display = 'block';
+                showControlsBtn.classList.add('hidden');
+            } else {
+                controls.style.display = 'none';
+                showControlsBtn.classList.remove('hidden');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (editModal.classList.contains('hidden')) {
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    togglePlay();
+                } else if (e.code === 'ArrowUp') {
+                    e.preventDefault();
+                    const newSpeed = Math.min(8, scrollSpeed + 0.5);
+                    updateSpeed(newSpeed);
+                    document.getElementById('speed').value = newSpeed;
+                } else if (e.code === 'ArrowDown') {
+                    e.preventDefault();
+                    const newSpeed = Math.max(0.5, scrollSpeed - 0.5);
+                    updateSpeed(newSpeed);
+                    document.getElementById('speed').value = newSpeed;
+                } else if (e.code === 'KeyH') {
+                    e.preventDefault();
+                    toggleControls();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
